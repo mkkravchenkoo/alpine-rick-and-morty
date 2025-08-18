@@ -8,7 +8,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="app.js"></script>
 </head>
-<body>
+<body class="dark:bg-gray-800">
 <header class="bg-gray-900">
     <nav aria-label="Global" class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
         <div class="flex lg:flex-1">
@@ -17,7 +17,7 @@
             </a>
         </div>
         <div class="flex lg:hidden">
-            <button type="button" command="show-modal" commandfor="mobile-menu" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-400">
+            <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-400">
                 <span class="sr-only">Open main menu</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
                     <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -31,5 +31,72 @@
         </div>
     </nav>
 </header>
+<main class="p-6 pt-24 flex-grow"
+      x-data="{
+          async fetchItems (page) {
+            try {
+                 this.isLoading = true;
+                  const res = await fetch(`https://rickandmortyapi.com/api/character?page=${page}`);
+                  this.result = await res.json();
+              } finally {
+                  this.isLoading = false;
+              }
+          },
+          result:{
+            results: [],
+            info:{}
+          },
+          page:1
+      }"
+      x-effect="fetchItems(page)"
+>
+
+
+    <h1 class="mb-4 text-4xl text-center font-extrabold mb-20 leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">Rick And Morty</h1>
+
+    <div class="max-w-7xl mx-auto grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 relative">
+        <template x-if="isLoading" >
+            <template x-for="n in 20">
+                <div role="status" class="flex h-[436px] items-center justify-center max-w-sm bg-gray-300 rounded-lg animate-pulse dark:bg-gray-700">
+                    <svg class="w-10 h-10 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 20">
+                        <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.98 2.98 0 0 0 .13 5H5Z"/>
+                        <path d="M14.066 0H7v5a2 2 0 0 1-2 2H0v11a1.97 1.97 0 0 0 1.934 2h12.132A1.97 1.97 0 0 0 16 18V2a1.97 1.97 0 0 0-1.934-2ZM9 13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2Zm4 .382a1 1 0 0 1-1.447.894L10 13v-2l1.553-1.276a1 1 0 0 1 1.447.894v2.764Z"/>
+                    </svg>
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </template>
+        </template>
+
+        <template x-if="!isLoading" >
+            <template x-for="item in result.results">
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                        <img :src="item.image" alt="" class="h-40 w-full object-cover">
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="text-indigo-700 font-bold text-lg mb-2" x-text="item.name"></h3>
+                            <p class="text-gray-700 flex-grow">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda at delectus doloremque est fugiat id illum in </p>
+                            <a href=""
+                               class="mt-4 inline-block bg-indigo-600 text-white py-2 rounded-full text-center hover:bg-indigo-700 transition">More</a>
+                        </div>
+                    </div>
+            </template>
+        </template>
+    </div>
+
+    <div class="flex items-center justify-center pt-10">
+        <nav class="inline-flex items-center p-1 rounded bg-white space-x-2">
+            <button @click="page--" class="p-1 rounded border text-black bg-white hover:text-white hover:bg-blue-600 hover:border-blue-600">
+                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"></path>
+                </svg>
+            </button>
+            <p class="text-gray-500">Page 1 of 10</p>
+            <button @click="page++" class="p-1 rounded border text-black bg-white hover:text-white hover:bg-blue-600 hover:border-blue-600">
+                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"></path>
+                </svg>
+            </button>
+        </nav>
+    </div>
+</main>
 </body>
 </html>
