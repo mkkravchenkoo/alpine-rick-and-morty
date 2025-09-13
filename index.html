@@ -35,7 +35,7 @@
       x-data="{
           async fetchItems (page) {
             try {
-                 this.isLoading = true;
+                  this.isLoading = true;
                   const res = await fetch(`https://rickandmortyapi.com/api/character?page=${page}`);
                   this.result = await res.json();
               } finally {
@@ -46,7 +46,8 @@
             results: [],
             info:{}
           },
-          page:1
+          page:1,
+          dialogPost:null
       }"
       x-effect="fetchItems(page)"
 >
@@ -73,12 +74,84 @@
                         <img :src="item.image" alt="" class="h-40 w-full object-cover">
                         <div class="p-5 flex flex-col flex-grow">
                             <h3 class="text-indigo-700 font-bold text-lg mb-2" x-text="item.name"></h3>
-                            <p class="text-gray-700 flex-grow">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda at delectus doloremque est fugiat id illum in </p>
-                            <a href=""
-                               class="mt-4 inline-block bg-indigo-600 text-white py-2 rounded-full text-center hover:bg-indigo-700 transition">More</a>
+                            <button
+                                    class="mt-4 inline-block bg-indigo-600 text-white py-2 rounded-full text-center hover:bg-indigo-700 transition"
+                                    @click="dialogPost = item.id"
+                            >
+                                More
+                            </button>
                         </div>
                     </div>
             </template>
+        </template>
+
+        <template x-teleport="body">
+            <div
+                    x-show="dialogPost"
+                    x-data="{
+                               async fetchItem (dialogPost) {
+                                    if(!dialogPost){
+                                        return;
+                                    }
+                                     try {
+                                          this.loading = true;
+                                          const res = await fetch(`https://rickandmortyapi.com/api/character/${dialogPost}`);
+                                          this.result = await res.json();
+                                      } finally {
+                                          this.loading = false;
+                                      }
+                               },
+                               close(){
+                                 this.result = null;
+                                 dialogPost = null;
+                               },
+                               loading:false,
+                               result:{}
+                        }"
+
+                 class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto bg-transparent backdrop:bg-transparent">
+                <div @click="close()" class="fixed inset-0 bg-gray-900/50 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"></div>
+                <div
+                        x-effect="fetchItem(dialogPost)"
+                        class="flex min-h-full items-end justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0">
+                    <div
+                            class="relative transform overflow-hidden rounded-lg bg-gray-800 text-left shadow-xl outline -outline-offset-1 outline-white/10 transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-lg data-closed:sm:translate-y-0 data-closed:sm:scale-95"
+                    >
+                        <div class="bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <template x-if="loading">
+                                <div class="text-center">
+                                    <div class="inline-block h-50 w-50 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white">
+                                      <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+                                          Loading...
+                                      </span>
+                                    </div>
+                                </div>
+                            </template>
+                            <template x-if="!loading">
+                                <div class="flex justify-between gap-x-6 py-5">
+                                    <div class="flex min-w-0 gap-x-4">
+                                        <img :src="result?.image || ''" alt="" width="300" height="300" class="size-50 flex-none bg-gray-800 outline -outline-offset-1 outline-white/10" >
+                                        <div class="min-w-0 flex-auto">
+                                            <p class="mt-1 truncate text-xs/5 text-gray-400">Name</p>
+                                            <p class="text-sm/6 font-semibold text-white" x-text="result?.name"></p>
+                                            <hr class="h-0.5 border-t-0 bg-neutral-100 dark:bg-white/10" />
+                                            <p class="mt-1 truncate text-xs/5 text-gray-400">Gender</p>
+                                            <p class="text-sm/6 font-semibold text-white" x-text="result?.gender"></p>
+                                            <hr class="h-0.5 border-t-0 bg-neutral-100 dark:bg-white/10" />
+                                            <p class="mt-1 truncate text-xs/5 text-gray-400">origin</p>
+                                            <p class="text-sm/6 font-semibold text-white" x-text="result?.origin?.name"></p>
+                                            <hr class="h-0.5 border-t-0 bg-neutral-100 dark:bg-white/10" />
+                                            <p class="mt-1 truncate text-xs/5 text-gray-400">species</p>
+                                            <p class="text-sm/6 font-semibold text-white" x-text="result?.species"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </template>
     </div>
 
